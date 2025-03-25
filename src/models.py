@@ -6,13 +6,16 @@ import enum
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'users'  # Cambié el nombre de la tabla para evitar conflictos
+    __tablename__ = 'user'  # Cambié el nombre de la tabla para evitar conflictos
+
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
     firstname = Column(String(50), nullable=False)
     secondname = Column(String(50), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
-    comments = relationship('Comment', backref='user', lazy=True)
+
+    conection_comment = relationship("Comment", back_populates="conection_user")
+
     def serialize(self):
         return {
             "id": self.id,
@@ -21,12 +24,17 @@ class User(db.Model):
             "secondname": self.secondname,
             "email": self.email,
         }
+    
+
 class Comment(db.Model):
-    __tablename__ = 'comments'
+    __tablename__ = 'Comments'
+
     id = Column(Integer, primary_key=True)
     comment_text = Column(String(50), nullable=False)
-    author_id = Column(Integer, nullable=False)
+    author_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     post_id = Column(Integer, nullable=False)
+
+    conection_user = relationship("User", back_populates="conection_comment")
 
     def serialize(self):
         return {
@@ -34,6 +42,7 @@ class Comment(db.Model):
              "author_id": self.author_id,
              "post_id": self.post_id,
         }
+    
     
 class Post (db.Model):
     __tablename__ = 'post'
